@@ -21,9 +21,10 @@ from PyQt6.QtWidgets import (
     QDialog,
     QLineEdit,
     QRadioButton,
+    QGraphicsDropShadowEffect,
 )
-from PyQt6.QtGui import QIcon, QFont
-from PyQt6.QtCore import Qt, QSize, QTimer, QPropertyAnimation, QEasingCurve
+from PyQt6.QtGui import QIcon, QFont, QColor
+from PyQt6.QtCore import Qt, QSize, QTimer, QPropertyAnimation, QEasingCurve, QParallelAnimationGroup
 
 # ============================================================
 # Login Dialog (保持不变)
@@ -186,22 +187,33 @@ class SidebarButton(QPushButton):
     def __init__(self, text: str, icon_path: Optional[str] = None):
         super().__init__(text)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setMinimumHeight(48)
+        self.setMinimumHeight(52)
         self.setCheckable(True)
+        self.setObjectName("SidebarButton")
         style = """
-            QPushButton {
-                border: none;
+            QPushButton#SidebarButton {
+                border: 1px solid transparent;
+                border-radius: 14px;
                 text-align: left;
-                padding-left: 10px;
+                padding: 12px 14px;
                 font-size: 14px;
                 background: transparent;
+                color: #1f2937;
             }
-            QPushButton:hover {
-                background: #f0f3f7;
+            QPushButton#SidebarButton:hover {
+                background: rgba(59, 130, 246, 0.10);
+                border: 1px solid rgba(59, 130, 246, 0.25);
             }
-            QPushButton:checked {
-                background: #e6f0ff;
-                border-left: 4px solid #3b82f6;
+            QPushButton#SidebarButton:pressed {
+                background: rgba(59, 130, 246, 0.20);
+            }
+            QPushButton#SidebarButton:checked {
+                background: qlineargradient(
+                    x1:0, y1:0, x2:1, y2:0,
+                    stop:0 rgba(59,130,246,0.14),
+                    stop:1 rgba(14,165,233,0.16)
+                );
+                border: 1px solid rgba(59, 130, 246, 0.30);
                 font-weight: bold;
             }
         """
@@ -241,41 +253,97 @@ class MainWindow(QWidget):
         self.time_timer.start(1000)
 
     def _build_ui(self):
+        self.setStyleSheet(
+            """
+            QWidget {
+                background: #f3f6fb;
+                color: #111827;
+            }
+            QFrame#TopFrame {
+                background: qlineargradient(
+                    x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #0f172a,
+                    stop:1 #1e3a8a
+                );
+                border-bottom: 1px solid rgba(255,255,255,0.12);
+            }
+            QLabel#WelcomeLabel {
+                color: #f8fafc;
+            }
+            QLabel#TimeLabel {
+                color: rgba(226, 232, 240, 0.95);
+                font-weight: 600;
+            }
+            QFrame#Sidebar {
+                background: rgba(255, 255, 255, 0.92);
+                border-right: 1px solid #e2e8f0;
+            }
+            QLabel#SidebarTitle {
+                font-size: 16px;
+                font-weight: 800;
+                padding: 16px;
+                color: #0f172a;
+            }
+            QStackedWidget {
+                background: qradialgradient(
+                    cx:0.4, cy:0.3, radius:1.0,
+                    fx:0.4, fy:0.3,
+                    stop:0 #ffffff,
+                    stop:1 #eef2ff
+                );
+                border: 1px solid rgba(148, 163, 184, 0.20);
+                border-radius: 18px;
+            }
+            """
+        )
+
         self.root_layout = QVBoxLayout(self)
         self.root_layout.setContentsMargins(0, 0, 0, 0)
         self.root_layout.setSpacing(0)
 
         self.top_frame = QFrame()
+        self.top_frame.setObjectName("TopFrame")
         self.top_frame.setFixedHeight(70)
-        self.top_frame.setStyleSheet("background:#f5f5f5; color:#333333;")
         self.top_layout = QHBoxLayout(self.top_frame)
         self.top_layout.setContentsMargins(20, 0, 20, 0)
+        self.top_layout.setSpacing(15)
 
-        self.welcome_label = QLabel("")
+        self.welcome_label = QLabel("📈 ")
+        self.welcome_label.setObjectName("WelcomeLabel")
         self.welcome_label.setFont(QFont("Microsoft YaHei", 16, QFont.Weight.Bold))
         self.welcome_label.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         self.top_layout.addWidget(self.welcome_label, alignment=Qt.AlignmentFlag.AlignLeft)
 
         self.time_label = QLabel()
+        self.time_label.setObjectName("TimeLabel")
         self.time_label.setFont(QFont("Microsoft YaHei", 12))
         self.top_layout.addWidget(self.time_label, alignment=Qt.AlignmentFlag.AlignRight)
 
         self.root_layout.addWidget(self.top_frame)
 
         content_layout = QHBoxLayout()
-        content_layout.setContentsMargins(0, 0, 0, 0)
+        content_layout.setContentsMargins(12, 12, 12, 12)
+        content_layout.setSpacing(12)
 
         self.sidebar = QFrame()
+        self.sidebar.setObjectName("Sidebar")
         self.sidebar.setFixedWidth(240)
-        self.sidebar.setStyleSheet("background:#ffffff;border-right:1px solid #e5e7eb;")
         self.sidebar_layout = QVBoxLayout(self.sidebar)
         self.sidebar_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        title = QLabel("⚡ 功能菜单")
-        title.setStyleSheet("font-size:16px;font-weight:bold;padding:16px;")
+        self.sidebar_layout.setContentsMargins(12, 12, 12, 12)
+        self.sidebar_layout.setSpacing(8)
+        title = QLabel("📊 财务功能菜单")
+        title.setObjectName("SidebarTitle")
         self.sidebar_layout.addWidget(title)
 
         self.stack = QStackedWidget()
-        self.stack.setStyleSheet("background:#f7f9fc;")
+
+        for frame in (self.sidebar, self.stack):
+            shadow = QGraphicsDropShadowEffect(self)
+            shadow.setBlurRadius(26)
+            shadow.setOffset(0, 8)
+            shadow.setColor(QColor(15, 23, 42, 30))
+            frame.setGraphicsEffect(shadow)
 
         content_layout.addWidget(self.sidebar)
         content_layout.addWidget(self.stack)
@@ -284,7 +352,7 @@ class MainWindow(QWidget):
         self.sidebar_buttons = []
 
     def _show_welcome_animation(self):
-        self.full_text = f"尊敬的 {self.nickname}, 欢迎使用中翰裕众财税工具平台！"
+        self.full_text = f"📈 尊敬的 {self.nickname}，欢迎使用中翰裕众财税工具平台"
         self.current_index = 0
         self.welcome_timer = QTimer(self)
         self.welcome_timer.timeout.connect(self._type_welcome)
@@ -307,7 +375,10 @@ class MainWindow(QWidget):
         self.fade_anim.setStartValue(1.0)
         self.fade_anim.setEndValue(0.0)
         self.fade_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
-        self.fade_anim.finished.connect(self.welcome_label.hide)
+        self.fade_anim.finished.connect(
+            lambda: self.welcome_label.setText(f"📌 当前用户：{self.nickname} · 财税分析工作台")
+        )
+        self.fade_anim.finished.connect(lambda: self.opacity_effect.setOpacity(1.0))
         self.fade_anim.start()
 
     def _update_time(self):
@@ -334,7 +405,9 @@ class MainWindow(QWidget):
                 self.stack.addWidget(widget)
 
                 # 侧边栏按钮逻辑
-                btn = SidebarButton(name, getattr(plugin, "plugin_icon", None))
+                finance_icons = ["📑", "🧾", "📉", "💹", "🧮", "🏦", "🗂️"]
+                decorated_name = f"{finance_icons[visible_count % len(finance_icons)]}  {name}"
+                btn = SidebarButton(decorated_name, getattr(plugin, "plugin_icon", None))
                 btn.clicked.connect(lambda _, i=visible_count: self._switch(i))
                 self.sidebar_layout.addWidget(btn)
                 self.sidebar_buttons.append(btn)
@@ -354,6 +427,9 @@ class MainWindow(QWidget):
             self.stack.addWidget(no_access)
 
     def _switch(self, index: int):
+        if index == self.stack.currentIndex():
+            return
+
         self.stack.setCurrentIndex(index)
         for b in self.sidebar_buttons:
             b.setChecked(False)
@@ -361,13 +437,24 @@ class MainWindow(QWidget):
             self.sidebar_buttons[index].setChecked(True)
 
         new_widget = self.stack.currentWidget()
-        anim = QPropertyAnimation(new_widget, b"windowOpacity")
         new_widget.setWindowOpacity(0)
-        anim.setDuration(300)
-        anim.setStartValue(0)
-        anim.setEndValue(1)
-        anim.setEasingCurve(QEasingCurve.Type.InOutQuad)
-        anim.start()
+        fade_anim = QPropertyAnimation(new_widget, b"windowOpacity")
+        fade_anim.setDuration(260)
+        fade_anim.setStartValue(0)
+        fade_anim.setEndValue(1)
+        fade_anim.setEasingCurve(QEasingCurve.Type.InOutQuad)
+
+        geo = new_widget.geometry()
+        slide_anim = QPropertyAnimation(new_widget, b"geometry")
+        slide_anim.setDuration(260)
+        slide_anim.setStartValue(geo.adjusted(22, 0, 22, 0))
+        slide_anim.setEndValue(geo)
+        slide_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
+
+        self.switch_anim_group = QParallelAnimationGroup(self)
+        self.switch_anim_group.addAnimation(fade_anim)
+        self.switch_anim_group.addAnimation(slide_anim)
+        self.switch_anim_group.start()
 
 
 if __name__ == "__main__":
