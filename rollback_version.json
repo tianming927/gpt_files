@@ -1,0 +1,6 @@
+{
+  "latest_version": "1.0.4",
+  "download_url": "http://113.45.76.90:8001/history/update_1.0.4.zip",
+  "update_log": "管理员执行了版本回滚，正在恢复至稳定版本。",
+  "force_update": true
+}

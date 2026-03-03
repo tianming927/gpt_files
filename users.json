@@ -1,0 +1,50 @@
+{
+    "staff": {
+        "mingjixiu": {
+            "password": "Ca123456",
+            "nickname": "明吉秀",
+            "access": [
+                "all"
+            ]
+        },
+        "tanwei": {
+            "password": "Ca123456",
+            "nickname": "谭巍",
+            "access": [
+                "tax_module",
+                "pdf_module",
+                "all"
+            ]
+        },
+        "lvbing": {
+            "password": "Ca123456",
+            "nickname": "吕冰",
+            "access": [
+                "all"
+            ]
+        },
+        "admin": {
+            "password": "Ca123456",
+            "nickname": "管理员",
+            "access": [
+                "all"
+            ]
+        },
+        "taojiajun": {
+            "password": "Ca123456",
+            "nickname": "陶家俊",
+            "access": [
+                "rd_module"
+            ]
+        }
+    },
+    "client": {
+        "client": {
+            "password": "Ca123456",
+            "nickname": "测试客户",
+            "access": [
+                "rd_module"
+            ]
+        }
+    }
+}

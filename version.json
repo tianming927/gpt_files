@@ -1,0 +1,6 @@
+{
+  "latest_version": "2.0.2",
+  "download_url": "http://113.45.76.90:8001/history/update_2.0.2.zip",
+  "update_log": "代码加密发布：适配 PyQt6 框架，修正 rd_module 加载逻辑。",
+  "force_update": true
+}
